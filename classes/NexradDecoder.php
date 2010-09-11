@@ -3,10 +3,10 @@
 //
 // Created by Chris Harrell (john.c.harrell@gmail.com), 09/10/2010
 //
-// $Id: NexradDecoder, v1.0
-// $Revision: 1.0 $
+// $Id: NexradDecoder, v1.1
+// $Revision: 1.1 $
 //
-// NexradDecoder base class.
+// Base NexradDecoder class.
 
 class NexradDecoder
 {
@@ -28,30 +28,35 @@ class NexradDecoder
 	/* This constructor is executed when the   */
 	/* object is first created                 */
 	///////////////////////////////////////////// 
-	function __construct($fileName)
+	function __construct()
 	{
 		
-		$this->initializeVariables($fileName);                           // Initialize method variables
+		$this->initializeVariables();                           // Initialize method variables
 	}
 
 
 	///////////////////////////////////////////// 
 	/* Initialize method variables             */
 	///////////////////////////////////////////// 
-	function initializeVariables($fileName)
+	function initializeVariables()
 	{
 
 		$this->msg_header_block = array();                      // Array to hold Message Header Block data.
-		$this->description_block = array();                      // Array to hold Product Description Block data.
+		$this->description_block = array();                     // Array to hold Product Description Block data.
 		$this->symbology_block = array();                       // Array to hold the Product Symbology Block data.
 		
 		$this->msg_header_block_offset = 30;
 		$this->description_block_offset = 48;
-
-		$this->filename = $fileName;
-		$this->handle = fopen($this->filename, "rb");
 	}
 
+	///////////////////////////////////////////// 
+	/* Create file handle resource             */
+	///////////////////////////////////////////// 
+	function setFileResource($fileName)
+	{
+		$this->filename = $fileName;
+		$this->handle = fopen($this->filename, "rb");	
+	}
 
 	///////////////////////////////////////////// 
 	/* Read a half word (4 bytes)              */
@@ -68,6 +73,24 @@ class NexradDecoder
 	function readWord()
 	{
 		return $this->str2dec(fread($this->handle,4));                 // Read four bytes of data (Two Halfwords / 1 Word)
+	}
+	
+	///////////////////////////////////////////// 
+	/* Read 4 bit RLE data                     */
+	/////////////////////////////////////////////
+	function parseRLE($startAngle)
+	{
+		$data = bin2hex(fread($this->handle,1));
+		$split_data = str_split($data,1);
+
+		$length = hexdec($split_data[0]);
+		$colorValue = hexdec($split_data[1]);
+		
+		for($k=1; $k <= $length; $k++)
+		{
+			$this->symbology_block['radial'][$startAngle]['colorValues'][] = $colorValue;
+		}
+
 	}
 
 
@@ -203,15 +226,11 @@ class NexradDecoder
 		$this->symbology_block['blockid'] = $this->readHalfWord();
 		$this->symbology_block['blocklength'] = $this->readWord();
 		$this->symbology_block['numoflayers'] = $this->readHalfWord();
-		$this->symbology_block['layerdivider'] = $this->readHalfWord();
-		$this->symbology_block['layerlength'] = $this->readWord();
-		$this->symbology_block['layerpacketcode'] = $this->readHalfWord();  // BR Packet Type is HEX (0xAF1F)
-		$this->symbology_block['layerindexoffirstrangebin'] = $this->readHalfWord();
-		$this->symbology_block['layernumberofrangebins'] = $this->readHalfWord();
-		$this->symbology_block['i_centerofsweep'] = $this->readHalfWord();
-		$this->symbology_block['j_centerofsweep'] = $this->readHalfWord();
-		$this->symbology_block['scalefactor'] = $this->readHalfWord() / 1000; // Number of pixels per range bin
-		$this->symbology_block['numberofradials'] = $this->readHalfWord();
+		
+		for($i = 1; $i <= $this->symbology_block['numoflayers']; $i++)
+		{
+			$this->parseLayers();
+		}
 		
 		return $this->symbology_block;
 	}	
