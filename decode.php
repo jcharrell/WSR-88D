@@ -1,6 +1,6 @@
 
 <?php
-
+// git test
 // Convert the binary string into hex
 // and then convert the hex into decimal;
 function str2dec($str)
