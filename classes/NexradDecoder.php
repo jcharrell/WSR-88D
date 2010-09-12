@@ -30,7 +30,6 @@ class NexradDecoder
 	///////////////////////////////////////////// 
 	function __construct()
 	{
-		
 		$this->initializeVariables();                           // Initialize method variables
 	}
 
@@ -78,7 +77,7 @@ class NexradDecoder
 	///////////////////////////////////////////// 
 	/* Read 4 bit RLE data                     */
 	/////////////////////////////////////////////
-	function parseRLE($startAngle)
+	function parseRLE()
 	{
 		$data = bin2hex(fread($this->handle,1));
 		$split_data = str_split($data,1);
@@ -86,10 +85,14 @@ class NexradDecoder
 		$length = hexdec($split_data[0]);
 		$colorValue = hexdec($split_data[1]);
 		
+		$colorValueArray = array();
+		
 		for($k=1; $k <= $length; $k++)
 		{
-			$this->symbology_block['radial'][$startAngle]['colorValues'][] = $colorValue;
+			$colorValueArray[] = $colorValue;
 		}
+		
+		return $colorValueArray;
 
 	}
 

@@ -1,11 +1,11 @@
 <?php
 
 include('classes/NexradDecoder.php');
-include('classes/RadialPacketDecoder.php');
+include('classes/RasterPacketDecoder.php');
 
 
-$reflectivityDecoder = new RadialPacketDecoder();
-$reflectivityDecoder->setFileResource('c:\nexrad\sn.last.stp');
+$reflectivityDecoder = new RasterPacketDecoder();
+$reflectivityDecoder->setFileResource('c:\nexrad\sn.last.cr');
 
 $headers = $reflectivityDecoder->parseMHB();
 $description = $reflectivityDecoder->parsePDB();
