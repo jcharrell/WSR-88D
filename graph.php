@@ -4,7 +4,7 @@ include('classes/NexradDecoder.php');
 include('classes/RadialPacketDecoder.php');
 
 $reflectivityDecoder = new RadialPacketDecoder();
-$reflectivityDecoder->setFileResource('c:\nexrad\sn.last.br');
+$reflectivityDecoder->setFileResource('c:\nexrad\sn.last.br.now.noprecip');
 
 $headers = $reflectivityDecoder->parseMHB();
 $description = $reflectivityDecoder->parsePDB();
@@ -43,8 +43,10 @@ foreach($symbology['radial'] AS $radialAngle=>$radialData)
 {
 	$radialPosition = 0;
 	
-	foreach($radialData['colorValues'] AS $radialPostionColorCode)
+	foreach($radialData['colorValues'] AS $radialPositionColorCode)
 	{
+		// If the radar is in clean air mode, adjust the color code
+		if($description['mode'] == 1 && $radialPositionColorCode >= 8) $radialPositionColorCode -= 8;
 		
 		$points = array();
 		$angleDelta = $radialData['angledelta']; 
@@ -61,7 +63,7 @@ foreach($symbology['radial'] AS $radialAngle=>$radialData)
 		$points[] = (cos(deg2rad(($radialAngle - 90) + $angleDelta)) * ($radialPosition + 1)  * $zoom) + ($width / 2);
 		$points[] = (sin(deg2rad(($radialAngle - 90) + $angleDelta)) * ($radialPosition + 1)  * $zoom) + ($height / 2);
 
-		imagefilledpolygon($im, $points, 4, $color[$radialPostionColorCode]);
+		imagefilledpolygon($im, $points, 4, $color[$radialPositionColorCode]);
 
 		$radialPosition++;
 	}
