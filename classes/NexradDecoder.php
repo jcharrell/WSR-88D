@@ -85,6 +85,13 @@ class NexradDecoder
 		$length = hexdec($split_data[0]);
 		$colorValue = hexdec($split_data[1]);
 		
+		// Reduce the color values if the radar is in clean air mode
+		if($this->description_block['mode'] == 1)
+		{
+			if($colorValue >= 8) $colorValue -= 8;
+			elseif($colorValue < 8) $colorValue = 0;
+		}
+		
 		$colorValueArray = array();
 		
 		for($k=1; $k <= $length; $k++)

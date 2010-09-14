@@ -45,9 +45,6 @@ foreach($symbology['radial'] AS $radialAngle=>$radialData)
 	
 	foreach($radialData['colorValues'] AS $radialPositionColorCode)
 	{
-		// If the radar is in clean air mode, adjust the color code
-		if($description['mode'] == 1 && $radialPositionColorCode >= 8) $radialPositionColorCode -= 8;
-		elseif($description['mode'] == 1 && $radialPositionColorCode < 8) $radialPositionColorCode = 0;
 		
 		$points = array();
 		$angleDelta = $radialData['angledelta']; 
