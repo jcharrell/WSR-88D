@@ -45,6 +45,7 @@ class RadialPacketDecoder extends NexradDecoder
 				$tempColorValues = $this->parseRLE();
 				$this->symbology_block['radial'][$startAngle]['colorValues'] = array_merge($this->symbology_block['radial'][$startAngle]['colorValues'], $tempColorValues);
 			}
+			
 		}
 		
 	}

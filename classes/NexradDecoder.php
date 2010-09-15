@@ -79,27 +79,28 @@ class NexradDecoder
 	/////////////////////////////////////////////
 	function parseRLE()
 	{
+		$valueArray = array();
+		
 		$data = bin2hex(fread($this->handle,1));
 		$split_data = str_split($data,1);
 
 		$length = hexdec($split_data[0]);
-		$colorValue = hexdec($split_data[1]);
+		$value = hexdec($split_data[1]);
 		
-		// Reduce the color values if the radar is in clean air mode
-		if($this->description_block['mode'] == 1)
+		// Reduce the color values if the radar is in clean air mode and the current product is one of many Base Reflectivity products
+		if($this->description_block['mode'] == 1 && ($this->description_block['code'] >= 16 && $this->description_block['code'] <= 21) )
 		{
-			if($colorValue >= 8) $colorValue -= 8;
-			elseif($colorValue < 8) $colorValue = 0;
+			if($value >= 8) $value -= 8;
+			elseif($value < 8) $value = 0;
 		}
 		
-		$colorValueArray = array();
-		
-		for($k=1; $k <= $length; $k++)
+		echo "$length - $value\n";
+		for($i=1; $i <= $length; $i++)
 		{
-			$colorValueArray[] = $colorValue;
+			$valueArray[] = $value;
 		}
 		
-		return $colorValueArray;
+		return $valueArray;
 
 	}
 

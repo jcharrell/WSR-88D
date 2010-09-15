@@ -30,13 +30,23 @@ class RasterPacketDecoder extends NexradDecoder
 		$this->symbology_block['y_scale_fraction'] = $this->readHalfWord();
 		$this->symbology_block['num_of_rows'] = $this->readHalfWord();
 		$this->symbology_block['packing_descriptor'] = $this->readHalfWord();
+		$this->symbology_block['row'] = array();
 		
-		for($i=1; $i <= $this->symbology_block['num_of_rows'] * 2; $i++)
+		//Appears to work if it iterates through one row of data, but if more than one row is iterated, it gets just won't work
+		//for($rowNumber=1; $rowNumber <= $this->symbology_block['num_of_rows']; $rowNumber++)
+		for($rowNumber=1; $rowNumber <= 1; $rowNumber++)
 		{
-			$this->symbology_block['bytes_in_row'] = $this->readHalfWord();
+			$this->symbology_block['row'][$rowNumber] = array();
+			$this->symbology_block['row'][$rowNumber]['data'] = array();
+			$rowBytes = $this->readHalfWord();
 			
-			//Incomplete
-			$this->parseRLE();
+			for($j = 1; $j <= ($rowBytes * 2); $j++)
+			{
+				//$this->symbology_block['row'][$rowNumber]['data'] = array_merge($this->symbology_block['row'][$rowNumber]['data'], $this->parseRLE());
+				$this->parseRLE();
+			}
+			
+			//echo max($this->symbology_block['row'][$rowNumber]['data']) . "\n";
 		}
 	}
 

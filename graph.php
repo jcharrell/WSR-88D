@@ -4,7 +4,7 @@ include('classes/NexradDecoder.php');
 include('classes/RadialPacketDecoder.php');
 
 $reflectivityDecoder = new RadialPacketDecoder();
-$reflectivityDecoder->setFileResource('c:\nexrad\sn.last.br.now.noprecip');
+$reflectivityDecoder->setFileResource('c:\nexrad\sn.last.br');
 
 $headers = $reflectivityDecoder->parseMHB();
 $description = $reflectivityDecoder->parsePDB();
