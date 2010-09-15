@@ -58,20 +58,26 @@ class NexradDecoder
 	}
 
 	///////////////////////////////////////////// 
-	/* Read a half word (4 bytes)              */
+	/* Read a half word (2 bytes)              */
 	///////////////////////////////////////////// 
-	function readHalfWord()
+	function readHalfWord($negativeRange = false)
 	{
-		return $this->str2dec(fread($this->handle,2));                 // Read two bytes of data (halfword)
+		if($negativeRange === true) 
+			return $this->dec2negdec($this->str2dec(fread($this->handle,2)));
+		else 
+			return $this->str2dec(fread($this->handle,2));                // Read two bytes of data (halfword)
 	}
 
 
 	///////////////////////////////////////////// 
-	/* Read a whole word (4 bytes)             */
+	/* Read a two halfwords (4 bytes)          */
 	/////////////////////////////////////////////
-	function readWord()
+	function readWord($negativeRange = false)
 	{
-		return $this->str2dec(fread($this->handle,4));                 // Read four bytes of data (Two Halfwords / 1 Word)
+		if($negativeRange === true) 
+			return $this->dec2negdec($this->str2dec(fread($this->handle,4)));
+		else 
+			return $this->str2dec(fread($this->handle,4));                 // Read four bytes of data (Two Halfwords / 1 Word)
 	}
 	
 	///////////////////////////////////////////// 
@@ -94,7 +100,6 @@ class NexradDecoder
 			elseif($value < 8) $value = 0;
 		}
 		
-		echo "$length - $value\n";
 		for($i=1; $i <= $length; $i++)
 		{
 			$valueArray[] = $value;
@@ -114,6 +119,32 @@ class NexradDecoder
 		$decimalValue = hexdec($hexidecimalValue);              // Convert the hexideximal value into decima
 		return $decimalValue;
 	}
+
+	/////////////////////////////////////////////
+	/* Convert a decimal value into the decimal*/
+	/* value of it's negative binary form.     */
+	/* Save us all!!! There must be a better   */
+	/* way!!!                                  */
+	/////////////////////////////////////////////		
+	function dec2negdec($value)
+	{
+		$binaryValue = decbin($value);
+		
+		// If the most significant bit is 1, then handle as a negative binary number
+		if($binaryValue[0] == 1)
+		{
+			$binaryValue = str_replace("0", "x", $binaryValue);
+			$binaryValue = str_replace("1", "0", $binaryValue);
+			$binaryValue = str_replace("x", "1", $binaryValue);
+			$negDecimalValue = (bindec($binaryValue) + 1) * -1;
+			
+			return $negDecimalValue;
+		}
+		
+		// If the MSB is not 1, then return the original value
+		else return $value;
+	}
+	
 
 	/////////////////////////////////////////////
 	/* Convert seconds to HH:MM:SS format      */
@@ -165,17 +196,15 @@ class NexradDecoder
 	{
 		fseek($this->handle, $this->description_block_offset);
 
-		$this->description_block['divider'] = $this->readHalfWord();  
-		
+		$this->description_block['divider'] = $this->readHalfWord();                                    //HW 10	
 		$this->description_block['latitude'] = $this->readWord() / 1000;                                //HW 11 - 12
-		$this->description_block['longitude'] = $this->readWord() / 1000;                               //HW 13 - 14
+		$this->description_block['longitude'] = $this->readWord(true) / 1000;                           //HW 13 - 14
 		$this->description_block['height'] = $this->readHalfWord();                                     //HW 15
 		$this->description_block['code'] = $this->readHalfWord();                                       //HW 16
 		$this->description_block['mode'] = $this->readHalfWord();                                       //HW 17
 		$this->description_block['volumecoveragepattern'] = $this->readHalfWord();                      //HW 18
 		$this->description_block['sequencenumber'] = $this->readHalfWord();                             //HW 19
 
-		//Halfword 20
 		$this->description_block['scannumber'] = $this->readHalfWord();                                 //HW 20
 		$this->description_block['scandate'] = jdtogregorian($this->readHalfWord() + 2440586.5);        //HW 21
 		$this->description_block['scantime'] = $this->sec2hms($this->readWord(), true);                 //HW 22 - 23
@@ -185,7 +214,6 @@ class NexradDecoder
 		$this->description_block['productspecific_2'] = $this->readHalfWord();                          //HW 28
 		$this->description_block['elevationnumber'] = $this->readHalfWord();                            //HW 29
 
-		//Halfword 30
 		$this->description_block['productspecific_3'] = $this->readHalfWord() / 10;                     //HW 30
 		$this->description_block['threshold_1'] = $this->readHalfWord();                                //HW 31
 		$this->description_block['threshold_2'] = $this->readHalfWord();                                //HW 32
@@ -197,27 +225,25 @@ class NexradDecoder
 		$this->description_block['threshold_8'] = $this->readHalfWord();                                //HW 38
 		$this->description_block['threshold_9'] = $this->readHalfWord();                                //HW 39
 
-		//Halfword 40
-		$this->description_block['threshold_10'] = $this->readHalfWord();                                //HW 40
-		$this->description_block['threshold_11'] = $this->readHalfWord();                                //HW 41
-		$this->description_block['threshold_12'] = $this->readHalfWord();                                //HW 42
-		$this->description_block['threshold_13'] = $this->readHalfWord();                                //HW 43
-		$this->description_block['threshold_14'] = $this->readHalfWord();                                //HW 44
-		$this->description_block['threshold_15'] = $this->readHalfWord();                                //HW 45
-		$this->description_block['threshold_16'] = $this->readHalfWord();                                //HW 46
-		$this->description_block['productspecific_4'] = $this->readHalfWord();                           //HW 47
-		$this->description_block['productspecific_5'] = $this->readHalfWord();                           //HW 48
-		$this->description_block['productspecific_6'] = $this->readHalfWord();                           //HW 49
+		$this->description_block['threshold_10'] = $this->readHalfWord();                               //HW 40
+		$this->description_block['threshold_11'] = $this->readHalfWord();                               //HW 41
+		$this->description_block['threshold_12'] = $this->readHalfWord();                               //HW 42
+		$this->description_block['threshold_13'] = $this->readHalfWord();                               //HW 43
+		$this->description_block['threshold_14'] = $this->readHalfWord();                               //HW 44
+		$this->description_block['threshold_15'] = $this->readHalfWord();                               //HW 45
+		$this->description_block['threshold_16'] = $this->readHalfWord();                               //HW 46
+		$this->description_block['productspecific_4'] = $this->readHalfWord();                          //HW 47
+		$this->description_block['productspecific_5'] = $this->readHalfWord();                          //HW 48
+		$this->description_block['productspecific_6'] = $this->readHalfWord();                          //HW 49
 
-		//Halfword 50
-		$this->description_block['productspecific_7'] = $this->readHalfWord();                           //HW 50
-		$this->description_block['productspecific_8'] = $this->readHalfWord();                           //HW 51
-		$this->description_block['productspecific_9'] = $this->readHalfWord();                           //HW 52
-		$this->description_block['productspecific_10'] = $this->readHalfWord();                          //HW 53
-		$this->description_block['version'] = $this->readHalfWord();                                     //HW 54
-		$this->description_block['symbologyoffset'] = $this->readWord();                                 //HW 55 - 56
-		$this->description_block['graphicoffset'] = $this->readWord();                                   //HW 57 - 58
-		$this->description_block['tabularoffset'] = $this->readWord();                                   //HW 59 - 60
+		$this->description_block['productspecific_7'] = $this->readHalfWord();                          //HW 50
+		$this->description_block['productspecific_8'] = $this->readHalfWord();                          //HW 51
+		$this->description_block['productspecific_9'] = $this->readHalfWord();                          //HW 52
+		$this->description_block['productspecific_10'] = $this->readHalfWord();                         //HW 53
+		$this->description_block['version'] = $this->readHalfWord();                                    //HW 54
+		$this->description_block['symbologyoffset'] = $this->readWord();                                //HW 55 - 56
+		$this->description_block['graphicoffset'] = $this->readWord();                                  //HW 57 - 58
+		$this->description_block['tabularoffset'] = $this->readWord();                                  //HW 59 - 60
 		
 		return $this->description_block;
 	}
