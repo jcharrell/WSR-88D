@@ -1,14 +1,23 @@
 <?PHP
 
 include('classes/NexradDecoder.php');
+
+// Base Reflectivity is encoded as a Radial Image, so we'll use
+// the Radial Packet Decoder class.
 include('classes/RadialPacketDecoder.php');
 
 $reflectivityDecoder = new RadialPacketDecoder();
 $reflectivityDecoder->setFileResource('c:\nexrad\sn.last.br');
 
+// Now we decode all the available blocks.
 $headers = $reflectivityDecoder->parseMHB();
 $description = $reflectivityDecoder->parsePDB();
 $symbology = $reflectivityDecoder->parsePSB();
+if($description['graphicoffset'] != 0)
+{
+	$graphic = $crDecoder->parseGAB();
+}
+
 
 $zoom = 1;
 $width = 480 * $zoom;

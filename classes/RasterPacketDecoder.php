@@ -32,21 +32,20 @@ class RasterPacketDecoder extends NexradDecoder
 		$this->symbology_block['packing_descriptor'] = $this->readHalfWord();
 		$this->symbology_block['row'] = array();
 		
-		//Appears to work if it iterates through one row of data, but if more than one row is iterated, it gets just won't work
-		//for($rowNumber=1; $rowNumber <= $this->symbology_block['num_of_rows']; $rowNumber++)
-		for($rowNumber=1; $rowNumber <= 1; $rowNumber++)
+		for($rowNumber=0; $rowNumber < $this->symbology_block['num_of_rows']; $rowNumber++)
 		{
+		
+			$rowBytes = $this->readHalfWord();			
 			$this->symbology_block['row'][$rowNumber] = array();
 			$this->symbology_block['row'][$rowNumber]['data'] = array();
-			$rowBytes = $this->readHalfWord();
+			$this->symbology_block['row'][$rowNumber]['bytes'] = $rowBytes;
 			
-			for($j = 1; $j <= ($rowBytes * 2); $j++)
+			for($j = 0; $j < $rowBytes; $j++)
 			{
-				//$this->symbology_block['row'][$rowNumber]['data'] = array_merge($this->symbology_block['row'][$rowNumber]['data'], $this->parseRLE());
-				$this->parseRLE();
+				$tempColorValues = $this->parseRLE();
+				$this->symbology_block['row'][$rowNumber]['data'] = array_merge($this->symbology_block['row'][$rowNumber]['data'], $tempColorValues);
 			}
 			
-			//echo max($this->symbology_block['row'][$rowNumber]['data']) . "\n";
 		}
 	}
 
