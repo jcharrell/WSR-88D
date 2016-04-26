@@ -11,7 +11,7 @@ $ npm install node-spc-storm-reports
 
 
 ## Usage
-Further examples may be found within the `examples/` folder.
+Further examples may be found within the [examples/](https://github.com/jcharrell/WSR-88D/tree/master/examples) folder.
 
 ```php
 include('classes/NexradDecoder.php');
