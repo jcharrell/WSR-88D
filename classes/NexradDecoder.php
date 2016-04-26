@@ -1,7 +1,7 @@
 <?php
 
 //
-// Created by Chris Harrell (john.c.harrell@gmail.com), 09/10/2010
+// Created by Chris Harrell, 09/10/2010
 //
 // $Id: NexradDecoder, v1.1
 // $Revision: 1.1 $
