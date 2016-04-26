@@ -1,6 +1,6 @@
 # WSR-88D
 
-> This was an early proof of concept to decode WSR-88D Nexrad radar data obtained from [NOAA](http://www.nws.noaa.gov/tg/radfiles.php).  While the data structure of the radar product files should ramain the same, it is possible that the mappings are dated at this point.  Do not expect further updates within this repository.
+> This was an early proof of concept to decode WSR-88D Nexrad radar data obtained from [NOAA](http://www.nws.noaa.gov/tg/radfiles.php).  While the data structure of the radar product files should ramain the same, it is possible that the mappings are dated, as this was developed in 2010.  Do not expect further updates within this repository.
 
 
 ## Install
