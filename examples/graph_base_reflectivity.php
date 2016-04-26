@@ -7,7 +7,7 @@ include('classes/NexradDecoder.php');
 include('classes/RadialPacketDecoder.php');
 
 $reflectivityDecoder = new RadialPacketDecoder();
-$reflectivityDecoder->setFileResource('c:\nexrad\sn.last.br');
+$reflectivityDecoder->setFileResource('/tmp/sn.last');
 
 // Now we decode all the available blocks.
 $headers = $reflectivityDecoder->parseMHB();

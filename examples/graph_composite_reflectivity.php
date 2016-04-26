@@ -6,7 +6,7 @@ include('classes/NexradDecoder.php');
 // the Raster Packet Decoder class.
 include('classes/RasterPacketDecoder.php');
 $crDecoder = new RasterPacketDecoder();
-$crDecoder->setFileResource('c:\nexrad\sn.last.cr.kfws');
+$crDecoder->setFileResource('/tmp/sn.last');
 
 // Now we decode all the available blocks.
 $headers = $crDecoder->parseMHB();
