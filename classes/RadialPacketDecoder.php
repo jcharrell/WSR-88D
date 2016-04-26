@@ -1,7 +1,7 @@
 <?php
 
 //
-// Created by Chris Harrell (john.c.harrell@gmail.com), 09/11/2010
+// Created by Chris Harrell, 09/11/2010
 //
 // $Id: RadialDecoder, v1.0
 // $Revision: 1.0 $
